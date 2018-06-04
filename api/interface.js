@@ -1,7 +1,7 @@
 const Router = require("express").Router
 const mysql = require("mysql")
-
-var pool = mysql.createPool({
+const urlLib = require('url')
+var pool = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
   password : 'root',
@@ -44,13 +44,13 @@ router.get('/listhome/filter/data', (req, res, next) => {
 })
 
 router.get('/courselist', function (req, res, next) {
-
-    if(req.url == "/courselist") {
-
-      pool.query(`SELECT  institutions.institutionsName,campuses.campusesName,teacher.teacherName,course.*, gradethree.gradeThreeId,gradethree.threeClass_name,gradetwo.gradeTwoId,gradetwo.twoClass_name,gradeone.class_name FROM gradeone INNER JOIN gradetwo ON gradeone.gradeId=gradetwo.pid INNER JOIN gradethree ON gradetwo.gradeTwoId = gradethree.pid JOIN course ON course.course_id=gradethree.gradeThreeId JOIN teacher ON teacher.thacherId=course.teacher_id JOIN campuses ON campuses.campusesId=teacher.schoolId JOIN institutions ON institutions.institutionsId=campuses.campusesParentId WHERE gradeone.gradeId=15963587 ORDER BY RAND() LIMIT 0,5` ,(err, data)=> {
+    let pathname = urlLib.parse(req.url, true).pathname
+    let querya = urlLib.parse(req.url, true).query.id
+    if(pathname == "/courselist") {
+      pool.query(`SELECT  institutions.institutionsName,campuses.campusesName,teacher.teacherName,course.*, gradethree.gradeThreeId,gradethree.threeClass_name,gradetwo.gradeTwoId,gradetwo.twoClass_name,gradeone.class_name FROM gradeone INNER JOIN gradetwo ON gradeone.gradeId=gradetwo.pid INNER JOIN gradethree ON gradetwo.gradeTwoId = gradethree.pid JOIN course ON course.course_id=gradethree.gradeThreeId JOIN teacher ON teacher.thacherId=course.teacher_id JOIN campuses ON campuses.campusesId=teacher.schoolId JOIN institutions ON institutions.institutionsId=campuses.campusesParentId WHERE gradeone.gradeId=${querya} ORDER BY RAND() LIMIT 0,5` ,(err, data)=> {
       var obj=[];
       data.forEach((value)=> {
-        obj.push(value)
+      obj.push(value)
       })
       res.json(obj)
       // console.log(data[0].name)
